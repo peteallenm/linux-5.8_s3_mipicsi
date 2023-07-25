@@ -1,0 +1,67 @@
+cat /sys/firmware/devicetree/base/soc/usb@1c19000/dr_mode
+
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- modules
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- modules_install INSTALL_MOD_PATH=Modules
+sudo cp -r Modules/lib/modules/5.8.0/* /media/pallen/armbi_root/lib/modules/5.8.0/
+
+./PrepHD3
+cd /home/openhd
+
+gst-launch-1.0 -ve v4l2src device=/dev/video0 ! video/x-raw,width=1280,height=720,framerate=60/1,format=NV12 ! cedar_h264enc keyint=12 bitrate=16000 !  video/x-h264 ! h264parse ! matroskamux ! filesink location="MaxVid.mkv"
+
+gst-launch-1.0 -ve v4l2src device=/dev/video0 num-buffers=1200 ! video/x-raw,width=1280,height=720,framerate=60/1,format=NV12 ! cedar_h264enc keyint=12 bitrate=16000 !  video/x-h264 ! h264parse ! matroskamux ! filesink location="MaxVid.mkv"
+
+gst-launch-1.0 -ve sunxisrc keyint=12 bitrate=8000 !  video/x-h264 ! h264parse ! matroskamux ! filesink location="MaxVid.mkv"
+
+./wfb_tx -u 5600 -k 0 -r 10 -p 0 wlx0013eff118ab >/dev/null &
+
+gst-launch-1.0 -ve v4l2src device=/dev/video0 ! video/x-raw,width=1280,height=720,framerate=60/1,pixelformat=NV12 ! cedar_h264enc keyint=12 bitrate=8000 ! video/x-h264 ! h264parse config-interval=-1 ! rtph264pay mtu=1024 ! queue ! udpsink host=127.0.0.1 port=5600
+
+gst-launch-1.0 -ve filesrc location="OpenHD-2.mkv" ! matroskademux ! video/x-h264 ! h264parse config-interval=-1 ! rtph264pay mtu=1024 ! queue ! udpsink host=127.0.0.1 port=5600 >/dev/null &
+
+==========================================
+
+v4l2-ctl --set-fmt-video=width=1280,height=720,pixelformat=NV12 --stream-mmap --str     eam-count=1 -d /dev/video0 --stream-to=CamOutNV12.raw 
+ffmpeg -c:v rawvideo -video_size 1280x720 -pixel_format yuv422p -i CamOut422P.raw CamOut422P.png
+
+
+gst-launch-1.0 -v filesrc location=CamOutNV12.raw  ! rawvideoparse use-sink-caps=false width=1280 height=720 format=nv12 ! x264enc bitrate=5000 ! h264parse ! matroskamux ! filesink location=out.mkv
+
+gst-launch-1.0 -ve v4l2src device=/dev/video0 ! video/x-raw,width=1280,height=720,format=NV12,colorimetry=bt709 ! queue ! fakesink filesink location=GstNV12Raw.raw
+
+
+export GST_DEBUG=2,v4l2src*:4
+
+v4l2-ctl --set-fmt-video=width=1280,height=720,pixelformat=NV12 --stream-mmap --stream-count=600 --silent -d /dev/video0 --stream-to=- | gst-launch-1.0 -ve fdsrc ! queue ! rawvideoparse use-sink-caps=false width=1280 height=720 format=nv12 ! queue ! cedar_h264enc keyint=12 bitrate=8000 ! queue ! h264parse ! matroskamux ! filesink location="cedar8.mkv"
+
+./v4l2_capture -f -c 480 | gst-launch-1.0 -ve fdsrc ! queue ! rawvideoparse use-sink-caps=false width=1280 height=720 format=nv12 ! queue ! cedar_h264enc keyint=12 bitrate=8000 ! queue ! h264parse ! matroskamux ! filesink location="cedar8.mkv"
+
+./demoVencoder -i ../CamOutPete.yuv -o TestCam.h264 -f 0 -s 720 -d 720 -b 8000
+
+find | cpio -o -H newc | gzip -c > ../init.rd
+mv ../init.rd /media/pallen/armbi_root/boot/initrd.img-5.8
+mkimage -A arm -T ramdisk -C none -n uInitrd -d /media/pallen/armbi_root/boot/initrd.img-5.8 /media/pallen/armbi_root/boot/uInitrd-5.8
+
+media-ctl -d 0 --set-v4l2 '"hdzerocam 1-0064":0[fmt:NV12/1280x720@1/60 field:none]'
+media-ctl -d 0 --set-v4l2 '"sun6i-csi":0[fmt:NV12/1280x720@1/60 field:none]'
+
+
+====== 
+armbianEnv.txt : extraargs=pty.legacy_count=6
+/etc/fstab none /dev/shm tmpfs defaults,size=4M 0 0
+/etc/init.d/udev tmpfs_size="2M"
+
+
+==== Debug ======
+echo 4 >/proc/sys/kernel/printk
+echo 3 >/sys/module/videobuf2_common/parameters/debug
+
+=============
+
+get_csi_input_format: CSI_INPUT_FORMAT_RAW
+get_csi_input_seq: CSI_INPUT_SEQ_UYVY
+get_csi_output_format: CSI_FIELD_RAW_8
+
+
+
+=================================

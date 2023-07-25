@@ -1,0 +1,10 @@
+# Sochip(Allwinner) S3 integrated 128M RAM SoC
+BOARD_NAME="OpenHD X20-dev"
+BOARDFAMILY="sun8i-v3s"
+KERNEL_TARGET="current,edge"
+MODULES="g_serial"
+MODULES_BLACKLIST="lima"
+BOOTCONFIG="openhd_x20dev_defconfig"
+HAS_VIDEO_OUTPUT="no"
+DEFAULT_CONSOLE="serial"
+SERIALCON="ttyS0,ttyGS0"
