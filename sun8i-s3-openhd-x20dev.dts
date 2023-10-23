@@ -26,12 +26,6 @@
 		#size-cells = <1>;
 		ranges;
 
-		csi0_memory: pool {
-			compatible = "shared-dma-pool";
-			size = <0x800000>;
-			no-align;
-			no-map;
-		};
     };
 
 	reg_vcc3v3: vcc3v3 {
@@ -40,6 +34,11 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 	};
+    
+    leds {
+		compatible = "gpio-leds";
+
+	}; 
 };
 
 &pio {
@@ -63,19 +62,9 @@
 	status = "okay";
 };
 
-&uart0 {
-	pinctrl-0 = <&uart0_pb_pins>;
-	pinctrl-names = "default";
-	status = "okay";
-};
-
-&usb_otg {
-	dr_mode = "peripheral";
-	status = "okay";
-};
-
-&usbphy {
-	usb0_id_det-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>;
+&mmc2 {
+	bus-width = <4>;
+	vmmc-supply = <&reg_vcc3v3>;
 	status = "okay";
 };
 
@@ -95,19 +84,10 @@
 	pinctrl-names = "default";
     clock-frequency = <100000>;
 	status = "okay";
-    /*
-    imx219: camera@64 {
-        compatible = "imx219";
-        reg = <0x64>;
-        pinctrl-names = "default";
-        port {
-			hdzerocam_out_mipi_csi2: endpoint {
-				data-lanes = <1 2 3 4>;
-
-				remote-endpoint = <&mipi_csi2_in_hdzerocam>;
-			};
-        };
-    }; */
+    sensor@48 {
+        compatible = "ti, tmp1075";
+        reg = <0x48>;
+    };
     
 };
 
@@ -154,19 +134,24 @@
 
 
 &usb_otg {
-    dr_mode = "otg";
+	dr_mode = "host";
 	status = "okay";
 };
 
 &usbphy {
-	usb0_id_det = <&pio 6 9 GPIO_ACTIVE_HIGH>; /* PG9 */
-    usb0_id_det-gpios = <&pio 6 9 GPIO_ACTIVE_HIGH>; /* PG9 */
+    usb0_id_det = <&pio 6 9 GPIO_ACTIVE_HIGH>; /* PG9 */
+    //usb0_id_det-gpios = <&pio 6 9 GPIO_ACTIVE_HIGH>; /* PG9 */
 	usb0_vbus_det = <&pio 1 10 GPIO_ACTIVE_HIGH>; /* PB10 */
 	/* usb0_vbus-supply = <&reg_usb0_vbus>; */ /* TODO: from AXP */
 	status = "okay";
 };
 
-
+&ehci0 {
+	status = "okay";
+};
+&ohci0 {
+	status = "okay";
+};
 &cedarx {
     status = "okay";
 };
