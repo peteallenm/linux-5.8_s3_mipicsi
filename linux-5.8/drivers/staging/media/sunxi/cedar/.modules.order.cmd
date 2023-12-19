@@ -1,0 +1,1 @@
+cmd_drivers/staging/media/sunxi/cedar/modules.order := {   cat drivers/staging/media/sunxi/cedar/ve/modules.order;   cat drivers/staging/media/sunxi/cedar/ion/modules.order; :; } | awk '!x[$$0]++' - > drivers/staging/media/sunxi/cedar/modules.order

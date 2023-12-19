@@ -1,0 +1,1 @@
+cmd_drivers/staging/media/sunxi/cedar/ion/sunxi/built-in.a := rm -f drivers/staging/media/sunxi/cedar/ion/sunxi/built-in.a; arm-linux-gnueabi-ar cDPrST drivers/staging/media/sunxi/cedar/ion/sunxi/built-in.a drivers/staging/media/sunxi/cedar/ion/sunxi/sunxi_ion.o drivers/staging/media/sunxi/cedar/ion/sunxi/cache.o
