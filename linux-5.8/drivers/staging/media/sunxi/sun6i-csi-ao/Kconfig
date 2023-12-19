@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config VIDEO_SUN6I_MIPI_CSI_AO
+	tristate "Allwinner A31 Camera Sensor Interface (CSI) Driver by Aodzip"
+	depends on V4L_PLATFORM_DRIVERS && VIDEO_DEV && HAS_DMA
+	depends on ARCH_SUNXI || COMPILE_TEST
+	depends on PM && COMMON_CLK && RESET_CONTROLLER && HAS_DMA
+	select MEDIA_CONTROLLER
+	select VIDEO_V4L2_SUBDEV_API
+	select VIDEOBUF2_DMA_CONTIG
+	select V4L2_FWNODE
+	select REGMAP_MMIO
+	help
+	   Support for the Allwinner A31 Camera Sensor Interface (CSI) (Aodzip version)
+	   controller, also found on other platforms such as the 
+	   V3/V3s or A64.

@@ -1,0 +1,1 @@
+cmd_drivers/staging/media/sunxi/sun6i-csi-ao/sun6i-csi.o := arm-linux-gnueabi-ld -EL   -r -o drivers/staging/media/sunxi/sun6i-csi-ao/sun6i-csi.o drivers/staging/media/sunxi/sun6i-csi-ao/sun6i_video.o drivers/staging/media/sunxi/sun6i-csi-ao/sun6i_csi.o drivers/staging/media/sunxi/sun6i-csi-ao/sun6i_mipi.o drivers/staging/media/sunxi/sun6i-csi-ao/sun6i_dphy.o

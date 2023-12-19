@@ -1,0 +1,1 @@
+cmd_drivers/staging/media/sunxi/sun6i-csi-ao/modules.order := {   echo drivers/staging/media/sunxi/sun6i-csi-ao/sun6i-csi.ko; :; } | awk '!x[$$0]++' - > drivers/staging/media/sunxi/sun6i-csi-ao/modules.order
